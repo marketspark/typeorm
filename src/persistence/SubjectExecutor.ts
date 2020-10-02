@@ -362,7 +362,7 @@ export class SubjectExecutor {
                 }
             }
 
-            subjects.forEach(subject => {
+            for (const subject of subjects) {
                 if (subject.generatedMap) {
                     subject.metadata.columns.forEach(column => {
                         const value = column.getEntityValue(subject.generatedMap!);
@@ -372,7 +372,12 @@ export class SubjectExecutor {
                         }
                     });
                 }
-            });
+
+                // for tree tables we execute additional queries
+                if (subject.metadata.treeType === "materialized-path") {
+                    await new MaterializedPathSubjectExecutor(this.queryRunner).update(subject);
+                }
+            }
         }
     }
 
